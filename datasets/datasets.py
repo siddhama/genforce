@@ -7,7 +7,7 @@ import string
 import zipfile
 import numpy as np
 import cv2
-import lmdb
+#import lmdb
 
 import torch
 from torch.utils.data import Dataset
@@ -57,51 +57,51 @@ class ZipLoader(object):
         return image
 
 
-class LmdbLoader(object):
-    """Defines a class to load lmdb file.
+# class LmdbLoader(object):
+#     """Defines a class to load lmdb file.
 
-    This is a static class, which is used to solve lmdb loading error
-    when num_workers > 0
-    """
-    files = dict()
+#     This is a static class, which is used to solve lmdb loading error
+#     when num_workers > 0
+#     """
+#     files = dict()
 
-    @staticmethod
-    def get_lmdbfile(file_path):
-        """Fetches a lmdb file"""
-        lmdb_files = LmdbLoader.files
-        if 'env' not in lmdb_files:
-            env = lmdb.open(file_path,
-                            max_readers=1,
-                            readonly=True,
-                            lock=False,
-                            readahead=False,
-                            meminit=False)
-            with env.begin(write=False) as txn:
-                num_samples = txn.stat()['entries']
-            cache_file = '_cache_' + ''.join(
-                c for c in file_path if c in string.ascii_letters)
-            if os.path.isfile(cache_file):
-                keys = pickle.load(open(cache_file, "rb"))
-            else:
-                with env.begin(write=False) as txn:
-                    keys = [key for key, _ in txn.cursor()]
-                pickle.dump(keys, open(cache_file, "wb"))
-            lmdb_files['env'] = env
-            lmdb_files['num_samples'] = num_samples
-            lmdb_files['keys'] = keys
-        return lmdb_files
+#     @staticmethod
+#     def get_lmdbfile(file_path):
+#         """Fetches a lmdb file"""
+#         lmdb_files = LmdbLoader.files
+#         if 'env' not in lmdb_files:
+#             env = lmdb.open(file_path,
+#                             max_readers=1,
+#                             readonly=True,
+#                             lock=False,
+#                             readahead=False,
+#                             meminit=False)
+#             with env.begin(write=False) as txn:
+#                 num_samples = txn.stat()['entries']
+#             cache_file = '_cache_' + ''.join(
+#                 c for c in file_path if c in string.ascii_letters)
+#             if os.path.isfile(cache_file):
+#                 keys = pickle.load(open(cache_file, "rb"))
+#             else:
+#                 with env.begin(write=False) as txn:
+#                     keys = [key for key, _ in txn.cursor()]
+#                 pickle.dump(keys, open(cache_file, "wb"))
+#             lmdb_files['env'] = env
+#             lmdb_files['num_samples'] = num_samples
+#             lmdb_files['keys'] = keys
+#         return lmdb_files
 
-    @staticmethod
-    def get_image(file_path, idx):
-        """Decodes an image from a particular lmdb file"""
-        lmdb_files = LmdbLoader.get_lmdbfile(file_path)
-        env = lmdb_files['env']
-        keys = lmdb_files['keys']
-        with env.begin(write=False) as txn:
-            imagebuf = txn.get(keys[idx])
-        image_np = np.frombuffer(imagebuf, np.uint8)
-        image = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
-        return image
+#     @staticmethod
+#     def get_image(file_path, idx):
+#         """Decodes an image from a particular lmdb file"""
+#         lmdb_files = LmdbLoader.get_lmdbfile(file_path)
+#         env = lmdb_files['env']
+#         keys = lmdb_files['keys']
+#         with env.begin(write=False) as txn:
+#             imagebuf = txn.get(keys[idx])
+#         image_np = np.frombuffer(imagebuf, np.uint8)
+#         image = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
+#         return image
 
 
 class BaseDataset(Dataset):
@@ -165,9 +165,9 @@ class BaseDataset(Dataset):
         if self.data_format == 'dir':
             self.image_paths = sorted(os.listdir(self.root_dir))
             self.num_samples = len(self.image_paths)
-        elif self.data_format == 'lmdb':
-            lmdb_file = LmdbLoader.get_lmdbfile(self.root_dir)
-            self.num_samples = lmdb_file['num_samples']
+        # elif self.data_format == 'lmdb':
+        #     lmdb_file = LmdbLoader.get_lmdbfile(self.root_dir)
+        #     self.num_samples = lmdb_file['num_samples']
         elif self.data_format == 'list':
             self.metas = []
             assert os.path.isfile(self.image_list_path)
@@ -204,8 +204,8 @@ class BaseDataset(Dataset):
                 image = jpeg.decode(in_file.read())
             except:  # pylint: disable=bare-except
                 image = cv2.imread(os.path.join(self.root_dir, image_path))
-        elif self.data_format == 'lmdb':
-            image = LmdbLoader.get_image(self.root_dir, idx)
+        # elif self.data_format == 'lmdb':
+        #     image = LmdbLoader.get_image(self.root_dir, idx)
         elif self.data_format == 'list':
             image_path, label = self.metas[idx]
             image = cv2.imread(os.path.join(self.root_dir, image_path))
