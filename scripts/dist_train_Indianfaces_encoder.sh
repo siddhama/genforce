@@ -6,7 +6,7 @@ echo "Please ensure you have installed the requirements!"
 Download data.
 echo "Downloading data ..."
 mkdir -p data/
-wget -nv https://www.dropbox.com/s/9kqsip3jg7bmhjr/cropped_images.zip?dl=0 \
+wget -nv  \
      -O data/cropped_images.zip --quiet
 
 # Launch training.

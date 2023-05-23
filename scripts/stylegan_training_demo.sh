@@ -6,7 +6,7 @@ echo "Please ensure you have installed the requirements!"
 # Download data.
 echo "Downloading data ..."
 mkdir -p data/
-wget -nv https://www.dropbox.com/s/vvtcqcujdjeq3zs/mini_animeface.zip?dl=1 \
+wget -nv  \
      -O data/demo.zip --quiet
 
 # Launch training.

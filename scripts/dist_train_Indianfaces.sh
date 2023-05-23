@@ -6,7 +6,7 @@ echo "Please ensure you have installed the requirements!"
 Download data.
 echo "Downloading data ..."
 mkdir -p data/
-wget -nv https://www.dropbox.com/s/n3rkb0rkdok4gph/IndianFacesCropped.zip?dl=0 \
+wget -nv  \
      -O data/IndianFaces.zip --quiet
 
 # Launch training.
